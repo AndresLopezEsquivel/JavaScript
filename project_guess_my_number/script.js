@@ -11,11 +11,9 @@ const checkButtonRoutine = () => {
           body.style.backgroundColor = "#60b347";
           setHighscore();
           alreadyWon = true;
-        } else if (guess > secretNumber) {
-          messageLabel.textContent = "Try a little lower";
-          scoreLabel.textContent = `Score: ${--score}`;
         } else {
-          messageLabel.textContent = "Try a little higher";
+          messageLabel.textContent =
+            guess > secretNumber ? "Try a little lower" : "Try a little higher";
           scoreLabel.textContent = `Score: ${--score}`;
         }
       } else {
