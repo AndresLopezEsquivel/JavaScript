@@ -1,11 +1,27 @@
 'use strict';
 
-const restartGame = () => {
-	// Initialize with 0 both score elements
-	score0Element.textContent = '0';
-	score1Element.textContent = '0';
-	// Initially, hide the dice element
-	dice.classList.add('hidden');
+const restartPlayerData = playerIndex => {
+	// Name of classes and id's
+	const scoreId = players[playerIndex].scoreId;
+	const currentScoreId = players[playerIndex].currentScoreId;
+	// Elements
+	const scoreElement = document.getElementById(scoreId);
+	const currentScoreElement = document.getElementById(currentScoreId);
+	// Initialize everyting
+	players[playerIndex].score = 0;
+	players[playerIndex].currentScore = 0;
+	scoreElement.textContent = '0';
+	currentScoreElement.textContent = '0';
+	// Print initial data
+	console.log(players[playerIndex]);
+};
+
+const createNewGame = () => {
+	restartPlayerData(0);
+	restartPlayerData(1);
+	deactivateBoard('player--0');
+	activateBoard('player--1');
+	currentPlayerIndex = 1;
 };
 
 const getRandomDiceNumber = () => Math.trunc(Math.random() * 6) + 1;
@@ -53,26 +69,30 @@ const updateCurrentScore = (n, currentScoreId) => {
 const players = {
 	// Player 0 data
 	0: {
+		score: 0,
 		currentScore: 0,
 		boardClass: 'player--0',
+		scoreId: 'score--0',
 		currentScoreId: 'current--0',
 	},
 	// Player 1 data
 	1: {
+		score: 0,
 		currentScore: 0,
 		boardClass: 'player--1',
+		scoreId: 'score--1',
 		currentScoreId: 'current--1',
 	},
 };
 
 let currentPlayerIndex = 0;
 const rollDiceButton = document.querySelector('.btn--roll');
-const score0Element = document.getElementById('score--0');
-const score1Element = document.getElementById('score--1');
-const player0Board = document.querySelector('.player--0');
-const player1Board = document.querySelector('.player--1');
+const restartButton = document.querySelector('.btn--new');
 const dice = document.querySelector('.dice');
 
-restartGame();
+dice.classList.add('hidden');
+restartPlayerData(0);
+restartPlayerData(1);
 
 rollDiceButton.addEventListener('click', rollDice);
+restartButton.addEventListener('click', createNewGame);
