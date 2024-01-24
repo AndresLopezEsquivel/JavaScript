@@ -20,12 +20,32 @@ const rollDice = () => {
 	dice.classList.remove('hidden');
 	// Routine when it is time to change player
 	if (changePlayer) {
-		players[currentPlayerIndex].deactivateBoard();
+		deactivateBoard(players[currentPlayerIndex].boardClass);
 		// If currentPlayerIndex is 0, then it will change to 1.
 		// It currentPlayerIndex is 1, then it will change to 0.
 		currentPlayerIndex = Number(!currentPlayerIndex);
-		players[currentPlayerIndex].activateBoard();
+		activateBoard(players[currentPlayerIndex].boardClass);
+	} else {
+		players[currentPlayerIndex].currentScore += n;
+		updateCurrentScore(
+			players[currentPlayerIndex].currentScore,
+			players[currentPlayerIndex].currentScoreId
+		);
 	}
+};
+
+const activateBoard = boardClassName => {
+	document.querySelector(`.${boardClassName}`).classList.add('player--active');
+};
+
+const deactivateBoard = boardClassName => {
+	document
+		.querySelector(`.${boardClassName}`)
+		.classList.remove('player--active');
+};
+
+const updateCurrentScore = (n, currentScoreId) => {
+	document.querySelector(`#${currentScoreId}`).textContent = n;
 };
 
 // Check the following site to know more about 'this'
@@ -33,25 +53,15 @@ const rollDice = () => {
 const players = {
 	// Player 0 data
 	0: {
-		boardClassName: 'player--0',
-		boardElement: document.querySelector(`.player--0`),
-		activateBoard: function () {
-			this.boardElement.classList.add('player--active');
-		},
-		deactivateBoard: function () {
-			this.boardElement.classList.remove('player--active');
-		},
+		currentScore: 0,
+		boardClass: 'player--0',
+		currentScoreId: 'current--0',
 	},
 	// Player 1 data
 	1: {
-		boardClassName: 'player--1',
-		boardElement: document.querySelector(`.player--1`),
-		activateBoard: function () {
-			this.boardElement.classList.add('player--active');
-		},
-		deactivateBoard: function () {
-			this.boardElement.classList.remove('player--active');
-		},
+		currentScore: 0,
+		boardClass: 'player--1',
+		currentScoreId: 'current--1',
 	},
 };
 
