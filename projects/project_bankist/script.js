@@ -82,9 +82,11 @@ const emptyMovementsContainer = () => {
   containerMovements.innerHTML = '';
 };
 
-const loadMovements = account => {
+const loadMovements = (account, sorted = false) => {
   emptyMovementsContainer();
-  const movements = account.movements;
+  const movements = sorted
+    ? account.movements.toSorted((a, b) => a - b)
+    : account.movements;
   movements.forEach((movement, index) => {
     const movementType = movement > 0 ? 'deposit' : 'withdrawal';
 
@@ -154,6 +156,7 @@ const updateUI = account => {
   loadSumIn(account);
   loadSumOut(account);
   loadInterests(account);
+  generateArrayFromMovementsUI();
 };
 
 const log_in = e => {
@@ -200,8 +203,45 @@ const transferMoney = e => {
   }
 };
 
+const deleteAccount = e => {
+  e.preventDefault();
+  const username = inputCloseUsername.value;
+  const pin = Number(inputClosePin.value);
+  inputCloseUsername.value = inputClosePin.value = '';
+  inputCloseUsername.blur();
+  inputClosePin.blur();
+  if (username === currentAccount.username && pin === currentAccount.pin) {
+    const userIndex = accounts.findIndex(
+      account => account.username === username
+    );
+    // const userIndex = accounts.indexOf(currentAccount); // <= This also works
+    accounts.splice(userIndex, 1);
+    containerApp.style.opacity = 0;
+  }
+};
+
+const sortMovements = () => {
+  sorted = !sorted;
+  loadMovements(currentAccount, sorted);
+};
+
+// I created the generateArrayFromMovementsUI just to show how the
+// static method Array.from works
+const generateArrayFromMovementsUI = () => {
+  const movs = Array.from(
+    document.querySelectorAll('.movements__value'),
+    node => {
+      return Number(node.textContent.replace('€', ''));
+    }
+  );
+  console.log(movs);
+};
+
 let currentAccount = null;
+let sorted = false;
 
 computeAllUsernames(accounts);
 btnLogin.addEventListener('click', log_in);
 btnTransfer.addEventListener('click', transferMoney);
+btnClose.addEventListener('click', deleteAccount);
+btnSort.addEventListener('click', sortMovements);
