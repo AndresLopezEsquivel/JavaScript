@@ -1,5 +1,8 @@
 "use strict";
 
+// This project is part of the  The Complete JavaScript Course 2024: From Zero to Expert!
+// By Jonas Schmedtmann
+
 ///////////////////////////////////////
 // Modal window
 
