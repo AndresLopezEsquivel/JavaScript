@@ -33,9 +33,9 @@ document.addEventListener("keydown", function (e) {
   }
 });
 
-// Scrolling
 const btnScroll = document.querySelector(".btn--scroll-to");
 const sectionOne = document.querySelector("#section--1");
+const navLinks = document.querySelector(".nav__links");
 
 const scroll = () => {
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
@@ -86,4 +86,27 @@ const scroll = () => {
   // sectionOne.scrollIntoView({ behavior: "smooth" });
 };
 
+const scrollToSection = (section) => {
+  let { left, top } = section.getBoundingClientRect();
+  let [currScrollX, currScrollY] = [window.scrollX, window.scrollY];
+  window.scrollTo({
+    top: top + currScrollY,
+    left: left + currScrollX,
+    behavior: "smooth",
+  });
+};
+
+const goToSectionHandler = function (event) {
+  event.preventDefault(); // To prevent the default behaviour of an anchor tag
+  const elementEvent = event.target; // Determine what element generated the event
+  if (!elementEvent.classList.contains("nav__link")) return;
+  if (elementEvent.classList.contains("nav__link--btn")) return;
+  const sectionId = elementEvent.getAttribute("href");
+  scrollToSection(document.querySelector(sectionId));
+  // console.log(sectionId);
+  // console.log(elementEvent.getAttribute("href"));
+};
+
 btnScroll.addEventListener("click", scroll);
+// Delegate the handler to a common parent
+navLinks.addEventListener("click", goToSectionHandler);
