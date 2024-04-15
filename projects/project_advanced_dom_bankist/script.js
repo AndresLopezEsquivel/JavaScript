@@ -169,6 +169,22 @@ const hoverLink = function (event) {
   document.querySelector(".nav__logo").style.opacity = opacity;
 };
 
+const stickHeader = function () {
+  // const { top } = sectionOne.getBoundingClientRect();
+  // console.log(top);
+  // if (top < 10) {
+  //   nav.classList.add("sticky");
+  // } else {
+  //   nav.classList.remove("sticky");
+  // }
+  // console.log(`top: ${sectionOneInitial.top}, scrollY: ${window.scrollY}`);
+  if (window.scrollY > sectionOneInitial.top) {
+    nav.classList.add("sticky");
+  } else {
+    nav.classList.remove("sticky");
+  }
+};
+
 btnScroll.addEventListener("click", scroll);
 navLinks.addEventListener("click", goToSectionHandler);
 operationsTabContainer.addEventListener("click", selectOperation);
@@ -178,3 +194,8 @@ operationsTabContainer.addEventListener("click", selectOperation);
 // https://javascript.info/bind
 nav.addEventListener("mouseover", hoverLink.bind(0.5));
 nav.addEventListener("mouseout", hoverLink.bind(1.0));
+// Implement a sticky navigation
+// https://www.w3schools.com/jsref/obj_window.asp
+// https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollY
+const sectionOneInitial = sectionOne.getBoundingClientRect();
+window.addEventListener("scroll", stickHeader);
