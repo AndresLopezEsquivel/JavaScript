@@ -1,3 +1,8 @@
+"use strict";
+
+// To know more about the bind method, check:
+// https://javascript.info/bind
+
 // Unlike the call and apply functions, the bind function doesn't immediately
 // call the function it is being used with.
 

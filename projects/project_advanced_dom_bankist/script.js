@@ -39,6 +39,7 @@ const navLinks = document.querySelector(".nav__links");
 const operationsTabContainer = document.querySelector(
   ".operations__tab-container"
 );
+const nav = document.querySelector(".nav");
 
 const scroll = () => {
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
@@ -158,6 +159,22 @@ const selectOperation = function (event) {
     .classList.add("operations__content--active");
 };
 
+const hoverLink = function (event) {
+  const link = event.target;
+  const opacity = this; // The value of opacity was set using the bind method
+  if (!link.classList.contains("nav__link")) return;
+  document.querySelectorAll(".nav__item").forEach((list_item) => {
+    if (list_item !== link.parentElement) list_item.style.opacity = opacity;
+  });
+  document.querySelector(".nav__logo").style.opacity = opacity;
+};
+
 btnScroll.addEventListener("click", scroll);
 navLinks.addEventListener("click", goToSectionHandler);
 operationsTabContainer.addEventListener("click", selectOperation);
+// To know more about moving-the-mouse events
+// check: https://javascript.info/mousemove-mouseover-mouseout-mouseenter-mouseleave
+// To know more about the bind method, check:
+// https://javascript.info/bind
+nav.addEventListener("mouseover", hoverLink.bind(0.5));
+nav.addEventListener("mouseout", hoverLink.bind(1.0));
