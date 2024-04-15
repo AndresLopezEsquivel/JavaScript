@@ -36,6 +36,9 @@ document.addEventListener("keydown", function (e) {
 const btnScroll = document.querySelector(".btn--scroll-to");
 const sectionOne = document.querySelector("#section--1");
 const navLinks = document.querySelector(".nav__links");
+const operationsTabContainer = document.querySelector(
+  ".operations__tab-container"
+);
 
 const scroll = () => {
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
@@ -107,6 +110,54 @@ const goToSectionHandler = function (event) {
   // console.log(elementEvent.getAttribute("href"));
 };
 
+// Version 1 of selectOperation
+const selectOperationV1 = function (event) {
+  const elementEvent = event.target;
+  let tabNumber;
+  // if (elementEvent === this) return;
+  if (elementEvent.tagName !== "BUTTON") return;
+  for (let childElement of operationsTabContainer.children) {
+    tabNumber = Array.from(childElement.classList)
+      .join(" ")
+      .match(/operations__tab--(?<tab_number>\d)/).groups.tab_number;
+
+    childElement.classList.remove("operations__tab--active");
+
+    document
+      .querySelector(`.operations__content--${tabNumber}`)
+      .classList.remove("operations__content--active");
+  }
+  elementEvent.classList.add("operations__tab--active");
+  // For regex, check:
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Groups_and_backreferences#using_groups
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions
+  // For Array.from, check:
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+  tabNumber = Array.from(elementEvent.classList)
+    .join(" ")
+    .match(/operations__tab--(?<tab_number>\d)/).groups.tab_number;
+  document
+    .querySelector(`.operations__content--${tabNumber}`)
+    .classList.add("operations__content--active");
+};
+
+const selectOperation = function (event) {
+  const clicked = event.target.closest(".operations__tab");
+  if (!clicked) return;
+  document
+    .querySelectorAll(".operations__content")
+    .forEach((element) =>
+      element.classList.remove("operations__content--active")
+    );
+  document
+    .querySelectorAll(".operations__tab")
+    .forEach((element) => element.classList.remove("operations__tab--active"));
+  clicked.classList.add("operations__tab--active");
+  document
+    .querySelector(`.operations__content--${clicked.dataset.tab}`)
+    .classList.add("operations__content--active");
+};
+
 btnScroll.addEventListener("click", scroll);
-// Delegate the handler to a common parent
 navLinks.addEventListener("click", goToSectionHandler);
+operationsTabContainer.addEventListener("click", selectOperation);
