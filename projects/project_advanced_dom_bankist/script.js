@@ -40,6 +40,7 @@ const operationsTabContainer = document.querySelector(
   ".operations__tab-container"
 );
 const nav = document.querySelector(".nav");
+const header = document.querySelector(".header");
 
 const scroll = () => {
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
@@ -169,7 +170,8 @@ const hoverLink = function (event) {
   document.querySelector(".nav__logo").style.opacity = opacity;
 };
 
-const stickHeader = function () {
+// Version 1 of stickHeader
+const stickHeaderV1 = function () {
   // const { top } = sectionOne.getBoundingClientRect();
   // console.log(top);
   // if (top < 10) {
@@ -185,6 +187,27 @@ const stickHeader = function () {
   }
 };
 
+const stickHeader = function (entries, observer) {
+  // entries is a list of instances of IntersectionObserverEntry
+  // https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserverEntry
+  // In this case, entries will have only one element
+  const [entry] = entries;
+  if (!entry.isIntersecting) {
+    nav.classList.add("sticky"); // When the header is no longer visible, stick the menu
+  } else {
+    nav.classList.remove("sticky"); // When as soon as the header is visible, unstick the menu
+  }
+};
+
+const revealSection = function (entries, observer) {
+  const [entry] = entries;
+  if (entry.isIntersecting) {
+    entry.target.classList.remove("section--hidden");
+  } else {
+    entry.target.classList.add("section--hidden");
+  }
+};
+
 btnScroll.addEventListener("click", scroll);
 navLinks.addEventListener("click", goToSectionHandler);
 operationsTabContainer.addEventListener("click", selectOperation);
@@ -195,7 +218,29 @@ operationsTabContainer.addEventListener("click", selectOperation);
 nav.addEventListener("mouseover", hoverLink.bind(0.5));
 nav.addEventListener("mouseout", hoverLink.bind(1.0));
 // Implement a sticky navigation
+
 // https://www.w3schools.com/jsref/obj_window.asp
 // https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollY
-const sectionOneInitial = sectionOne.getBoundingClientRect();
-window.addEventListener("scroll", stickHeader);
+// const sectionOneInitial = sectionOne.getBoundingClientRect();
+// window.addEventListener("scroll", stickHeader);
+
+// Implementing stick navigation using Intersection Observer API
+// https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
+const observerOptions = {
+  root: null, // root is the viewport
+  threshold: 0, // We want the callback function to be called once the header is no longer visible or when as soon as even one pixel is visible
+  rootMargin: `-${nav.getBoundingClientRect().height}px`, // Decrease the margin of the viewport by -90 px
+};
+const stickyObserver = new IntersectionObserver(stickHeader, observerOptions);
+stickyObserver.observe(header);
+
+// Implementing section revealing using Intersection Observer API
+const revealSectionObserver = new IntersectionObserver(revealSection, {
+  root: null,
+  threshold: 0.1,
+});
+
+document.querySelectorAll(".section").forEach((sectionElement) => {
+  sectionElement.classList.add("section--hidden");
+  revealSectionObserver.observe(sectionElement);
+});
