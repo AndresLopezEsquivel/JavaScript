@@ -208,6 +208,23 @@ const revealSection = function (entries, observer) {
   }
 };
 
+const revealLazyImg = function (entries, observer) {
+  // entries will only have one element
+  const [entry, ...others] = entries;
+  if (entry.isIntersecting) {
+    // Due to possibly slow networks, it becomes necessary to wait
+    // until the high-quality image is loaded before revealing it.
+    // To do that, we'll use the load event
+    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/load_event
+    entry.target.src = entry.target.dataset.src;
+    entry.target.addEventListener("load", function () {
+      entry.target.classList.remove("lazy-img");
+    });
+    // https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver/unobserve
+    observer.unobserve(entry.target);
+  }
+};
+
 btnScroll.addEventListener("click", scroll);
 navLinks.addEventListener("click", goToSectionHandler);
 operationsTabContainer.addEventListener("click", selectOperation);
@@ -243,4 +260,18 @@ const revealSectionObserver = new IntersectionObserver(revealSection, {
 document.querySelectorAll(".section").forEach((sectionElement) => {
   sectionElement.classList.add("section--hidden");
   revealSectionObserver.observe(sectionElement);
+});
+
+// Implement lazy images by using the Intersection Observer API
+const lazyImgObs = new IntersectionObserver(revealLazyImg, {
+  root: null, // The viewport will be the root
+  threshold: 0.1,
+  rootMargin: "200px 0px 200px 0px", // We want the images to be loaded before the user notices it
+});
+
+// Select elements that have a certain attribute
+//https://www.w3schools.com/css/css_attribute_selectors.asp#:~:text=The%20%5Battribute%7C%3D%22value%22,%3D%22top%2Dtext%22.
+
+document.querySelectorAll("img[data-src]").forEach((img) => {
+  lazyImgObs.observe(img);
 });
