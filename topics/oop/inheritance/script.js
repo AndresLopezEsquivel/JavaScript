@@ -17,6 +17,12 @@ const Developer = function(firstName, lastName, stack) {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
   // When invoked as a standalone function (not attached to an object: func()),
   // 'this' typically refers to the global object (in non-strict mode) or undefined (in strict mode).
+
+  // Here, Person is not being used as a constructor but as a function.
+  // The purpose of calling the Person function is to add and set the
+  // firstName and lastName properties of the object produced by the Developer constructor.
+  // The call method is being used on Person to keep the current context
+  // and avoid 'this' to be undefined inside Person.
   Person.call(this, firstName, lastName); // Add firstName and lastName properties to the object at which 'this' points to
   this.stack = stack;
 }
