@@ -51,6 +51,8 @@ const validateCred = creditCardArray => {
   return sum % 10 === 0;
 }
 
+const findInvalidCards = cards => cards.filter(card => !validateCred(card));
+
 console.log("Testing valid credit cards:");
 console.log(validateCred(valid1)); // true
 console.log(validateCred(valid2)); // true
@@ -64,3 +66,7 @@ console.log(validateCred(invalid2)); // false
 console.log(validateCred(invalid3)); // false
 console.log(validateCred(invalid4)); // false
 console.log(validateCred(invalid5)); // false
+
+console.log("Finding invalid cards in batch:");
+const invalidCards = findInvalidCards(batch);
+console.log(invalidCards); // All the invalid card arrays
