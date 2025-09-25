@@ -53,6 +53,31 @@ const validateCred = creditCardArray => {
 
 const findInvalidCards = cards => cards.filter(card => !validateCred(card));
 
+const idInvalidCardCompanies = invalidCards => {
+  const companies = {
+    '3': 'Amex (American Express)',
+    '4': 'Visa',
+    '5': 'Mastercard',
+    '6': 'Discover'
+  }
+
+  let setOfCompanies = new Set();
+
+  for(let i = 0; i < invalidCards.length; i++)
+  {
+    if(companies[`${invalidCards[i][0]}`])
+    {
+      setOfCompanies.add(invalidCards[i][0]);
+    }
+    else
+    {
+      console.log('Error: Company not found');
+    }
+  }
+
+  return [...setOfCompanies].map(companyIndex => companies[`${companyIndex}`]);
+}
+
 console.log("Testing valid credit cards:");
 console.log(validateCred(valid1)); // true
 console.log(validateCred(valid2)); // true
@@ -70,3 +95,7 @@ console.log(validateCred(invalid5)); // false
 console.log("Finding invalid cards in batch:");
 const invalidCards = findInvalidCards(batch);
 console.log(invalidCards); // All the invalid card arrays
+
+console.log("Identifying companies of invalid cards:");
+const invalidCardCompanies = idInvalidCardCompanies(invalidCards);
+console.log(invalidCardCompanies); // All the companies that have mailed out invalid cards
