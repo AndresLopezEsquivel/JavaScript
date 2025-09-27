@@ -29,6 +29,25 @@ const pAequorFactory = (specimenNum, dna) => {
       const newBase = filteredDnaBases[Math.floor(Math.random() * filteredDnaBases.length)];
       this.dna[randomIndex] = newBase;
       return this.dna;
+    },
+    compareDNA(pAequor)
+    {
+      const thisPAequorDNALength = this.dna.length;
+      const otherPAequorDNALength = pAequor.dna.length;
+
+      if(thisPAequorDNALength !== otherPAequorDNALength)
+      {
+        console.log('compareDNA error: lengths don\'t match');
+        return;
+      }
+
+      let numIdenticalBases = 0;
+      for(let i = 0; i < thisPAequorDNALength; i++)
+      {
+        if(this.dna[i] === pAequor.dna[i]) numIdenticalBases++;
+      }
+
+      console.log(`specimen #${this.dna.specimenNum} and specimen #${pAequor.dna.specimenNum} have ${numIdenticalBases/thisPAequorDNALength}% DNA in common`)
     }
   };
 };
