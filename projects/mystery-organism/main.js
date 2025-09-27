@@ -60,3 +60,22 @@ const pAequorFactory = (specimenNum, dna) => {
     }
   };
 };
+
+const generateArrayOfSurvivingPAequor = () => {
+  let numOfAequor = 1;
+  let aequors = [];
+  while (numOfAequor < 16)
+  {
+    const newAequor = pAequorFactory(numOfAequor, mockUpStrand());
+    if(newAequor.willLikelySurvive())
+    {
+      aequors.push(newAequor);
+      numOfAequor++;
+    }
+  }
+  return aequors;
+};
+
+const survivingAequors = generateArrayOfSurvivingPAequor();
+console.log(survivingAequors);
+console.log(survivingAequors.length);
