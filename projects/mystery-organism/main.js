@@ -48,6 +48,15 @@ const pAequorFactory = (specimenNum, dna) => {
       }
 
       console.log(`specimen #${this.dna.specimenNum} and specimen #${pAequor.dna.specimenNum} have ${numIdenticalBases/thisPAequorDNALength}% DNA in common`)
+    },
+    willLikelySurvive()
+    {
+      let numCoincidences = 0;
+      for(let i = 0; i < this.dna.length; i++)
+      {
+        if(this.dna[i] === 'C' || this.dna[i] === 'G') numCoincidences++;
+      }
+      return (numCoincidences / this.dna.length) > 0.6;
     }
   };
 };
