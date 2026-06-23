@@ -196,3 +196,92 @@ Inference is powerful, but explicit annotations are still valuable in a few plac
 - **Uninitialized variables** — `let result;` infers `any`; write `let result: number;` instead.
 
 The guiding principle: let inference handle the obvious, and annotate where it documents intent or closes a safety gap.
+
+## Functions
+
+Functions are where type annotations do the most work: they describe what a function accepts and what it produces, turning the call site into a checked contract.
+
+### Annotating parameters and return types
+
+Each parameter gets its own annotation, and the return type follows the parameter list:
+
+```ts
+function greet(name: string): string {
+  return `Hello, ${name}`;
+}
+```
+
+As covered under inference, you typically annotate parameters and let the return type infer — but annotating the return type explicitly is worthwhile for public functions.
+
+### Function expressions and arrow functions
+
+The same applies to function expressions and arrow functions:
+
+```ts
+const greet = (name: string): string => `Hello, ${name}`;
+```
+
+### Optional parameters
+
+A `?` after the parameter name makes it **optional**. Optional parameters must come after all required ones, and their type includes `undefined`:
+
+```ts
+function greet(name: string, title?: string): string {
+  return title ? `Hello, ${title} ${name}` : `Hello, ${name}`;
+}
+
+greet("Ada");            // ✓
+greet("Ada", "Dr.");     // ✓
+```
+
+### Default parameters
+
+A **default value** is used when the argument is omitted or `undefined`. A parameter with a default is automatically optional, and its type is inferred from the default:
+
+```ts
+function greet(name: string, greeting = "Hello"): string {
+  return `${greeting}, ${name}`;
+}
+
+greet("Ada");          // "Hello, Ada"
+greet("Ada", "Hi");    // "Hi, Ada"
+```
+
+### Rest parameters
+
+A **rest parameter** collects any number of trailing arguments into an array, typed as an array type:
+
+```ts
+function sum(...numbers: number[]): number {
+  return numbers.reduce((total, n) => total + n, 0);
+}
+
+sum(1, 2, 3); // 6
+```
+
+### Function types
+
+A function itself has a type, written as a parameter list and an arrow to the return type. This is how you describe a value that *is* a function — for example, a callback:
+
+```ts
+let operation: (a: number, b: number) => number;
+
+operation = (a, b) => a + b; // params inferred from the function type
+operation = (a, b) => a * b;
+```
+
+Because the function type already supplies the parameter types, the assigned arrow function needs no annotations of its own — contextual typing fills them in.
+
+### `void` return type
+
+A function type returning `void` describes a function whose result is ignored. Notably, a function returning a value *is still assignable* to a `void`-returning type — the value is simply discarded:
+
+```ts
+const numbers = [1, 2, 3];
+const logged: number[] = [];
+
+numbers.forEach((n) => logged.push(n));
+// push returns a number, but forEach expects (value) => void — allowed
+```
+
+This special rule is what lets you pass concise callbacks like the one above without wrapping them to discard the return value.
