@@ -387,3 +387,95 @@ The two overlap heavily for object shapes. The practical differences:
 - **Type aliases** are more general — they can name unions, tuples, primitives, and computed types that interfaces cannot.
 
 A common convention: **use `interface` for object shapes** (especially public ones meant to be extended), and **reach for `type` when you need a union, tuple, or other non-object type**. Either choice is fine for plain objects — consistency matters more than the specific rule.
+
+## Union and Literal Types
+
+Union and literal types let you describe values that can be *one of several specific possibilities* — a capability that has no direct equivalent in plain JavaScript.
+
+### Union types
+
+A **union** type, written with `|`, allows a value to be any one of several types:
+
+```ts
+let id: number | string;
+
+id = 42;     // ✓
+id = "A-42"; // ✓
+id = true;   // ✗ Type 'boolean' is not assignable to 'number | string'.
+```
+
+Unions appear constantly — for example, a function that accepts either form of an id:
+
+```ts
+function format(id: number | string): string {
+  return `ID: ${id}`;
+}
+```
+
+### Literal types
+
+A **literal type** is a type whose only value is one specific literal. On its own it is rarely useful:
+
+```ts
+let mode: "dark"; // can only ever be the string "dark"
+mode = "light";   // ✗ Type '"light"' is not assignable to type '"dark"'.
+```
+
+Recall from inference that `const x = "dark"` is given the literal type `"dark"`, while `let` widens to `string`. Literals become powerful when combined into a union.
+
+### Literal unions
+
+A **union of literals** describes a small, fixed set of allowed values — a lightweight, type-checked alternative to "magic strings":
+
+```ts
+type Theme = "light" | "dark" | "system";
+
+function setTheme(theme: Theme): void {
+  // ...
+}
+
+setTheme("dark");  // ✓
+setTheme("blue");  // ✗ Argument of type '"blue"' is not assignable to 'Theme'.
+```
+
+The same works with numeric and boolean literals:
+
+```ts
+type Direction = -1 | 0 | 1;
+```
+
+### Narrowing
+
+When you have a union, TypeScript only lets you do what is valid for *every* member — until you **narrow** it. Narrowing uses ordinary runtime checks (`typeof`, `===`, `in`, truthiness, etc.) to tell the compiler which member you have in a given branch:
+
+```ts
+function format(id: number | string): string {
+  if (typeof id === "string") {
+    return id.toUpperCase(); // id is string here
+  }
+  return id.toFixed(0);      // id is number here
+}
+```
+
+This interplay — a union widening what a value *might* be, and narrowing recovering what it *is* in each branch — is one of the most distinctive and powerful patterns in TypeScript.
+
+### Discriminated unions
+
+A particularly useful pattern combines literal types with object shapes. Each shape carries a common literal property — the **discriminant** — that identifies which variant it is:
+
+```ts
+type Shape =
+  | { kind: "circle"; radius: number }
+  | { kind: "square"; side: number };
+
+function area(shape: Shape): number {
+  switch (shape.kind) {
+    case "circle":
+      return Math.PI * shape.radius ** 2; // narrowed to the circle variant
+    case "square":
+      return shape.side ** 2;             // narrowed to the square variant
+  }
+}
+```
+
+Switching on `kind` narrows `shape` to exactly one variant in each branch, giving you safe access to that variant's properties. This pattern scales cleanly as you add new cases.
