@@ -285,3 +285,105 @@ numbers.forEach((n) => logged.push(n));
 ```
 
 This special rule is what lets you pass concise callbacks like the one above without wrapping them to discard the return value.
+
+## Interfaces and Type Aliases
+
+So far we've typed individual values. To describe the **shape of an object** — what properties it has and what types they hold — TypeScript offers two tools: `interface` and `type`.
+
+### Interfaces
+
+An **interface** names an object shape:
+
+```ts
+interface User {
+  id: number;
+  name: string;
+}
+
+const ada: User = { id: 1, name: "Ada" };
+```
+
+A value satisfies the interface as long as it has the required properties with the right types. Missing or mistyped properties are compile errors:
+
+```ts
+const bad: User = { id: 1 }; // ✗ Property 'name' is missing.
+```
+
+### Type aliases
+
+A **type alias** gives a name to *any* type — not just object shapes. For an object it looks almost identical to an interface:
+
+```ts
+type User = {
+  id: number;
+  name: string;
+};
+```
+
+But a `type` can also name primitives, unions, tuples, and more — things an `interface` cannot express:
+
+```ts
+type ID = number | string;
+type Point = [number, number];
+```
+
+### Optional and readonly properties
+
+A `?` marks a property as **optional**; `readonly` prevents reassignment after creation. Both work in interfaces and object type aliases:
+
+```ts
+interface User {
+  readonly id: number; // can't be changed once set
+  name: string;
+  email?: string;      // may be omitted
+}
+
+const ada: User = { id: 1, name: "Ada" };
+ada.id = 2;            // ✗ Cannot assign to 'id' — it is read-only.
+```
+
+### Nested and function members
+
+Object types compose: properties can themselves be objects, arrays, or functions:
+
+```ts
+interface User {
+  id: number;
+  name: string;
+  address: {
+    city: string;
+    country: string;
+  };
+  greet(): string; // a method
+}
+```
+
+### Extending and composing
+
+Interfaces can **extend** other interfaces to build larger shapes from smaller ones:
+
+```ts
+interface Animal {
+  name: string;
+}
+
+interface Dog extends Animal {
+  breed: string;
+}
+```
+
+Type aliases achieve the same through **intersection** with `&`:
+
+```ts
+type Animal = { name: string };
+type Dog = Animal & { breed: string };
+```
+
+### Interface vs. type: which to use?
+
+The two overlap heavily for object shapes. The practical differences:
+
+- **Interfaces** can be *reopened* — declaring an `interface` with the same name twice merges the declarations (**declaration merging**). Type aliases cannot be redeclared.
+- **Type aliases** are more general — they can name unions, tuples, primitives, and computed types that interfaces cannot.
+
+A common convention: **use `interface` for object shapes** (especially public ones meant to be extended), and **reach for `type` when you need a union, tuple, or other non-object type**. Either choice is fine for plain objects — consistency matters more than the specific rule.
