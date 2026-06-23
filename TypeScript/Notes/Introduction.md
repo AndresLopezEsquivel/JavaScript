@@ -479,3 +479,85 @@ function area(shape: Shape): number {
 ```
 
 Switching on `kind` narrows `shape` to exactly one variant in each branch, giving you safe access to that variant's properties. This pattern scales cleanly as you add new cases.
+
+## Generics
+
+**Generics** let you write code that works over *many* types while preserving the relationships between them. They are type-level parameters: just as a function parameter stands in for a value supplied at call time, a *type parameter* stands in for a type supplied at use time.
+
+### The problem they solve
+
+Suppose you want a function that returns whatever it is given. Typing it with a concrete type is too narrow; typing it with `any` throws away all type information:
+
+```ts
+function identity(value: any): any {
+  return value;
+}
+
+const result = identity("hello"); // result is `any` — we've lost that it's a string
+```
+
+A **generic type parameter**, written in angle brackets, captures the caller's type and threads it through:
+
+```ts
+function identity<T>(value: T): T {
+  return value;
+}
+
+const a = identity("hello"); // T = string, a is string
+const b = identity(42);      // T = number, b is number
+```
+
+`T` is just a name (a single uppercase letter is conventional, but `identity<Item>` is equally valid). TypeScript usually **infers** the type argument from the call, so you rarely write it explicitly — though you can: `identity<string>("hello")`.
+
+### Generic functions over structures
+
+Generics shine when a function relates its input and output types. Here the element type flows from the array to the return value:
+
+```ts
+function first<T>(items: T[]): T | undefined {
+  return items[0];
+}
+
+const n = first([1, 2, 3]);       // number | undefined
+const s = first(["a", "b"]);      // string | undefined
+```
+
+### Generic interfaces and type aliases
+
+Types can be generic too. A type parameter on an interface or alias lets one definition describe a whole family of shapes:
+
+```ts
+interface Box<T> {
+  value: T;
+}
+
+const numberBox: Box<number> = { value: 42 };
+const stringBox: Box<string> = { value: "hello" };
+
+type Pair<K, V> = {
+  key: K;
+  value: V;
+};
+```
+
+You can declare more than one type parameter (`Pair<K, V>` above), and they can have defaults: `interface Box<T = string>`.
+
+### Constraints
+
+By default a type parameter could be *anything*, so you can't assume it has any particular properties. A **constraint**, written with `extends`, restricts the type parameter to something that has the members you need:
+
+```ts
+function longest<T extends { length: number }>(a: T, b: T): T {
+  return a.length >= b.length ? a : b;
+}
+
+longest("hello", "hi");      // ✓ strings have length
+longest([1, 2], [1, 2, 3]);  // ✓ arrays have length
+longest(10, 20);             // ✗ number has no 'length' property
+```
+
+The constraint says "`T` can be any type, *as long as* it has a numeric `length`," which is exactly enough to make `a.length` valid inside the function while still preserving the precise type at the call site.
+
+### Why generics matter
+
+Generics give you the reusability of `any` *without* sacrificing type safety. They are the foundation of TypeScript's standard library — `Array<T>`, `Promise<T>`, `Map<K, V>`, and many built-in utilities are all generic — so understanding them unlocks a large portion of the type system.
