@@ -561,3 +561,158 @@ The constraint says "`T` can be any type, *as long as* it has a numeric `length`
 ### Why generics matter
 
 Generics give you the reusability of `any` *without* sacrificing type safety. They are the foundation of TypeScript's standard library — `Array<T>`, `Promise<T>`, `Map<K, V>`, and many built-in utilities are all generic — so understanding them unlocks a large portion of the type system.
+
+## Classes
+
+Classes are a JavaScript feature, but TypeScript adds type annotations, access control, and a few conveniences on top. They package data (properties) and behavior (methods) into a reusable blueprint for objects.
+
+### Fields, constructors, and methods
+
+Class fields are declared with their types, initialized in the **constructor**, and operated on by **methods**:
+
+```ts
+class User {
+  name: string;
+  age: number;
+
+  constructor(name: string, age: number) {
+    this.name = name;
+    this.age = age;
+  }
+
+  greet(): string {
+    return `Hi, I'm ${this.name}`;
+  }
+}
+
+const ada = new User("Ada", 36);
+ada.greet(); // "Hi, I'm Ada"
+```
+
+Unlike plain JavaScript, fields must be declared before use — TypeScript needs to know the shape of an instance.
+
+### Access modifiers
+
+TypeScript adds **access modifiers** that control where a member can be used:
+
+- **`public`** (the default) — accessible everywhere.
+- **`private`** — accessible only within the same class.
+- **`protected`** — accessible within the class and its subclasses.
+
+```ts
+class Account {
+  private balance = 0;
+
+  deposit(amount: number): void {
+    this.balance += amount; // ✓ inside the class
+  }
+}
+
+const acc = new Account();
+acc.balance; // ✗ Property 'balance' is private.
+```
+
+These modifiers are checked at *compile time*. TypeScript also supports JavaScript's native `#private` fields, which enforce privacy at runtime as well.
+
+### `readonly` fields
+
+A `readonly` field can be set in the constructor but never reassigned afterward:
+
+```ts
+class User {
+  readonly id: number;
+
+  constructor(id: number) {
+    this.id = id;
+  }
+}
+```
+
+### Parameter properties
+
+Declaring a field and assigning it from a constructor parameter is so common that TypeScript offers a shorthand: put an access modifier (or `readonly`) on a constructor parameter, and it becomes a field automatically. These two classes are equivalent:
+
+```ts
+class User {
+  constructor(
+    public name: string,
+    private age: number,
+  ) {}
+}
+
+// equivalent to declaring `name`/`age` fields and assigning them in the body
+```
+
+### Inheritance
+
+A class can **extend** another to inherit its members, calling the parent constructor with `super`:
+
+```ts
+class Animal {
+  constructor(public name: string) {}
+
+  move(): string {
+    return `${this.name} moves`;
+  }
+}
+
+class Dog extends Animal {
+  constructor(name: string, public breed: string) {
+    super(name); // must call before using `this`
+  }
+
+  move(): string {
+    return `${super.move()} on four legs`; // override, reusing the parent
+  }
+}
+```
+
+### Implementing interfaces
+
+A class can declare that it **implements** an interface, and TypeScript verifies it provides every member the interface requires. This separates the *contract* (the interface) from the *implementation* (the class):
+
+```ts
+interface Greetable {
+  name: string;
+  greet(): string;
+}
+
+class User implements Greetable {
+  constructor(public name: string) {}
+
+  greet(): string {
+    return `Hi, I'm ${this.name}`;
+  }
+}
+```
+
+A class may implement several interfaces, while it can only extend one parent — interfaces are how you compose multiple contracts onto one class.
+
+### Abstract classes
+
+An **abstract class** cannot be instantiated directly; it serves as a base that defines some behavior and leaves the rest for subclasses to fill in via **abstract members**:
+
+```ts
+abstract class Shape {
+  abstract area(): number; // no body — subclasses must implement
+
+  describe(): string {
+    return `Area is ${this.area()}`; // can use the abstract method
+  }
+}
+
+class Circle extends Shape {
+  constructor(private radius: number) {
+    super();
+  }
+
+  area(): number {
+    return Math.PI * this.radius ** 2;
+  }
+}
+
+new Shape();           // ✗ Cannot create an instance of an abstract class.
+new Circle(2).describe(); // ✓
+```
+
+Abstract classes sit between interfaces (pure contracts) and concrete classes (full implementations): they can supply shared logic while still forcing subclasses to provide the missing pieces.
