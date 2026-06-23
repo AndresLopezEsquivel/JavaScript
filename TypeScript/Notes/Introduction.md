@@ -127,3 +127,72 @@ Prefer `unknown` over `any` whenever you must accept a value of uncertain type b
     throw new Error(message);
   }
   ```
+
+## Type Inference
+
+You do not have to annotate everything. When TypeScript can figure out a type on its own, it does — this is called **type inference**. In practice, much of a well-typed codebase has few explicit annotations.
+
+### Inference from initialization
+
+When you declare and initialize a variable in one step, TypeScript infers the type from the value:
+
+```ts
+let title = "TypeScript"; // inferred as string
+let version = 5;          // inferred as number
+let stable = true;        // inferred as boolean
+```
+
+These are equivalent to writing `: string`, `: number`, and `: boolean` explicitly — but the annotation is redundant, so idiomatic TypeScript omits it. The inferred type is still fully enforced:
+
+```ts
+let title = "TypeScript";
+title = 5; // ✗ Error: Type 'number' is not assignable to type 'string'.
+```
+
+### `let` vs `const`
+
+The *width* of an inferred type depends on how the variable is declared. A `const` can never be reassigned, so TypeScript infers the narrowest possible **literal type**; a `let` may change, so it infers the broader primitive:
+
+```ts
+let mutable = "hello";   // inferred as string
+const fixed = "hello";   // inferred as "hello" (a literal type)
+```
+
+This narrowing is what makes literal and union types practical later on.
+
+### Return type inference
+
+Function return types are inferred from the `return` statements, so you often don't need to annotate them:
+
+```ts
+function add(a: number, b: number) {
+  return a + b; // return type inferred as number
+}
+```
+
+Parameters, however, are **not** inferred in an ordinary function declaration — TypeScript has no way to know what callers will pass, so unannotated parameters fall back to `any` (or raise an error under `noImplicitAny`). As a rule of thumb: **annotate parameters, let return types infer.**
+
+### Contextual typing
+
+Inference also flows *inward* from the surrounding context. When the position of an expression already implies a type, TypeScript types it for you — this is **contextual typing**:
+
+```ts
+const names = ["Ada", "Alan"];
+
+names.forEach((name) => {
+  // `name` is inferred as string from the array's element type
+  console.log(name.toUpperCase());
+});
+```
+
+Here the callback parameter `name` needs no annotation: TypeScript knows `forEach` on a `string[]` passes a `string`.
+
+### When to annotate
+
+Inference is powerful, but explicit annotations are still valuable in a few places:
+
+- **Function parameters** — almost always annotate them.
+- **Public APIs** — annotating exported function return types makes the contract explicit and stops an accidental internal change from silently altering the signature.
+- **Uninitialized variables** — `let result;` infers `any`; write `let result: number;` instead.
+
+The guiding principle: let inference handle the obvious, and annotate where it documents intent or closes a safety gap.
